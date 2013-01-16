@@ -39,6 +39,23 @@ class AlbumController extends AbstractActionController
         }
         return array('form' => $form);
     }
+    
+    public function searchAction(){
+        
+        $form = new AlbumForm();
+        $form->get('submit')->setValue('Buscar');
+        
+        $ret['form'] = $form;
+        $ret['albums'] = "";
+        
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $ret['albums'] = $this->getAlbumTable()->searchAlbum($request->getPost());
+        }
+        
+        return $ret;
+
+    }
 
     public function editAction()
     {
