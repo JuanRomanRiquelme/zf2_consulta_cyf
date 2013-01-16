@@ -1,3 +1,3 @@
-ZF2 tutorial application
+esqueleto_mejorado
 
-See [http://akrabat.com/zend-framework-2-tutorial/](http://akrabat.com/zend-framework-2-tutorial/)
+zf2 skeleton con Busqueda, ZendDevTools y Logger global
