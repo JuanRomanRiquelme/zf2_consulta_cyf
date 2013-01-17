@@ -2,7 +2,12 @@
 return array(
     'modules' => array(
         'Application',
+        //'StickyNotes',
         'Album',
+        'DoctrineModule',
+    	'DoctrineORMModule',
+    	'ZendDeveloperTools',
+        'BjyProfiler'
     ),
     'module_listener_options' => array(
         'config_glob_paths'    => array(

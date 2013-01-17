@@ -15,6 +15,19 @@ return array(
                     ),
                 ),
             ),
+            'search' => array(
+                'type' => 'Zend\Mvc\Router\Http\Segment',
+                'options' => array(
+                    'route'    => '/album/search',
+                    'constraints' => array(
+                        'lang' => '[a-z]{2}(-[A-Z]{2}){0,1}'
+                    ),
+                    'defaults' => array(
+                        'controller' => 'Album\Controller\Album',
+                        'action'     => 'search'
+                    ),
+                ),
+            ),
             // The following is a route to simplify getting started creating
             // new controllers and actions without needing to create a new
             // module. Simply drop new controllers in, and you can access them
