@@ -17,14 +17,14 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     protected $_sm;
 
-	protected function getPlatformName()
-	{
-	    $class = get_class($this);
+    protected function getPlatformName()
+    {
+        $class = get_class($this);
         $e = explode('\\', $class);
         $testClass = end($e);
         $dbms = strtolower(str_replace('SchemaManagerTest', null, $testClass));
         return $dbms;
-	}
+    }
 
     protected function setUp()
     {
@@ -376,7 +376,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $this->markTestSkipped('Alter Table is not supported by this platform.');
         }
 
-        $this->createTestTable('alter_table');
+        $alterTable = $this->createTestTable('alter_table');
         $this->createTestTable('alter_table_foreign');
 
         $table = $this->_sm->listTableDetails('alter_table');
@@ -387,6 +387,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(1, count($table->getIndexes()));
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff("alter_table");
+        $tableDiff->fromTable = $alterTable;
         $tableDiff->addedColumns['foo'] = new \Doctrine\DBAL\Schema\Column('foo', Type::getType('integer'));
         $tableDiff->removedColumns['test'] = $table->getColumn('test');
 
@@ -397,6 +398,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertTrue($table->hasColumn('foo'));
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff("alter_table");
+        $tableDiff->fromTable = $table;
         $tableDiff->addedIndexes[] = new \Doctrine\DBAL\Schema\Index('foo_idx', array('foo'));
 
         $this->_sm->alterTable($tableDiff);
@@ -409,6 +411,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertFalse($table->getIndex('foo_idx')->isUnique());
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff("alter_table");
+        $tableDiff->fromTable = $table;
         $tableDiff->changedIndexes[] = new \Doctrine\DBAL\Schema\Index('foo_idx', array('foo', 'foreign_key_test'));
 
         $this->_sm->alterTable($tableDiff);
@@ -419,6 +422,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(array('foo', 'foreign_key_test'), array_map('strtolower', $table->getIndex('foo_idx')->getColumns()));
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff("alter_table");
+        $tableDiff->fromTable = $table;
         $tableDiff->removedIndexes[] = new \Doctrine\DBAL\Schema\Index('foo_idx', array('foo', 'foreign_key_test'));
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('foreign_key_test'), 'alter_table_foreign', array('id'));
         $tableDiff->addedForeignKeys[] = $fk;
@@ -429,12 +433,14 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         // dont check for index size here, some platforms automatically add indexes for foreign keys.
         $this->assertFalse($table->hasIndex('foo_idx'));
 
-        $this->assertEquals(1, count($table->getForeignKeys()));
-        $fks = $table->getForeignKeys();
-        $foreignKey = current($fks);
-        $this->assertEquals('alter_table_foreign', strtolower($foreignKey->getForeignTableName()));
-        $this->assertEquals(array('foreign_key_test'), array_map('strtolower', $foreignKey->getColumns()));
-        $this->assertEquals(array('id'), array_map('strtolower', $foreignKey->getForeignColumns()));
+        if ($this->_sm->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $fks = $table->getForeignKeys();
+            $this->assertCount(1, $fks);
+            $foreignKey = current($fks);
+            $this->assertEquals('alter_table_foreign', strtolower($foreignKey->getForeignTableName()));
+            $this->assertEquals(array('foreign_key_test'), array_map('strtolower', $foreignKey->getColumns()));
+            $this->assertEquals(array('id'), array_map('strtolower', $foreignKey->getForeignColumns()));
+        }
     }
 
     public function testCreateAndListViews()
@@ -585,6 +591,8 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table = $this->getTestTable($name, $options);
 
         $this->_sm->dropAndCreateTable($table);
+
+        return $table;
     }
 
     protected function getTestTable($name, $options=array())

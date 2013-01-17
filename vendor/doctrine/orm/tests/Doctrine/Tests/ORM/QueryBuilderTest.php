@@ -19,7 +19,8 @@
 
 namespace Doctrine\Tests\ORM;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\ArrayCollection,
+    Doctrine\Common\Collections\Criteria;
 
 use Doctrine\ORM\QueryBuilder,
     Doctrine\ORM\Query\Expr,
@@ -38,6 +39,9 @@ require_once __DIR__ . '/../TestInit.php';
  */
 class QueryBuilderTest extends \Doctrine\Tests\OrmTestCase
 {
+    /**
+     * @var \Doctrine\ORM\EntityManager
+     */
     private $_em;
 
     protected function setUp()
@@ -369,6 +373,55 @@ class QueryBuilderTest extends \Doctrine\Tests\OrmTestCase
             ->addOrderBy('u.username', 'DESC');
 
         $this->assertValidQueryBuilder($qb, 'SELECT u FROM Doctrine\Tests\Models\CMS\CmsUser u ORDER BY u.username ASC, u.username DESC');
+    }
+
+    public function testAddCriteriaWhere()
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $criteria = new Criteria();
+        $criteria->where($criteria->expr()->eq('field', 'value'));
+
+        $qb->addCriteria($criteria);
+
+        $this->assertEquals('field = :field', (string) $qb->getDQLPart('where'));
+        $this->assertNotNull($qb->getParameter('field'));
+    }
+
+    public function testAddCriteriaOrder()
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $criteria = new Criteria();
+        $criteria->orderBy(array('field' => Criteria::DESC));
+
+        $qb->addCriteria($criteria);
+
+        $this->assertCount(1, $orderBy = $qb->getDQLPart('orderBy'));
+        $this->assertEquals('field DESC', (string) $orderBy[0]);
+    }
+
+    public function testAddCriteriaLimit()
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $criteria = new Criteria();
+        $criteria->setFirstResult(2);
+        $criteria->setMaxResults(10);
+
+        $qb->addCriteria($criteria);
+
+        $this->assertEquals(2, $qb->getFirstResult());
+        $this->assertEquals(10, $qb->getMaxResults());
+    }
+
+    public function testAddCriteriaUndefinedLimit()
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $qb->setFirstResult(2)->setMaxResults(10);
+        $criteria = new Criteria();
+
+        $qb->addCriteria($criteria);
+
+        $this->assertEquals(2, $qb->getFirstResult());
+        $this->assertEquals(10, $qb->getMaxResults());
     }
 
     public function testGetQuery()
@@ -780,5 +833,18 @@ class QueryBuilderTest extends \Doctrine\Tests\OrmTestCase
             ->from('Doctrine\Tests\Models\CMS\CmsUser', 'u');
 
         $this->assertEquals('SELECT DISTINCT u FROM Doctrine\Tests\Models\CMS\CmsUser u', $qb->getDQL());
+    }
+
+    /**
+     * @group DDC-2192
+     */
+    public function testWhereAppend()
+    {
+        $this->setExpectedException('InvalidArgumentException', "Using \$append = true does not have an effect with 'where' or 'having' parts. See QueryBuilder#andWhere() for an example for correct usage.");
+
+        $qb = $this->_em->createQueryBuilder()
+            ->add('where', 'u.foo = ?1')
+            ->add('where', 'u.bar = ?2', true)
+        ;
     }
 }

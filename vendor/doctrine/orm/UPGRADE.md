@@ -1,3 +1,11 @@
+# Upgrade to 2.4
+
+## OnFlush and PostFlush event always called
+
+Before 2.4 the postFlush and onFlush events were only called when there were
+actually entities that changed. Now these events are called no matter if there
+are entities in the UoW or changes are found.
+
 # Upgrade to 2.3
 
 ## EntityManager#find() not calls EntityRepository#find() anymore
@@ -40,6 +48,12 @@ Also, related functions were affected:
 
 Internal changes were made to DQL and SQL generation. If you have implemented your own TreeWalker,
 you probably need to update it. The method walkJoinVariableDeclaration is now named walkJoin.
+
+## New methods in TreeWalker interface *BC break*
+
+Two methods getQueryComponents() and setQueryComponent() were added to the TreeWalker interface and all its implementations
+including TreeWalkerAdapter, TreeWalkerChain and SqlWalker. If you have your own implementation not inheriting from one of the
+above you must implement these new methods.
 
 ## Metadata Drivers
 

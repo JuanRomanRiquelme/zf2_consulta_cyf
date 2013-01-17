@@ -1,3 +1,8 @@
 esqueleto_mejorado
 
-zf2 skeleton con Busqueda, ZendDevTools y Logger global
+zf2 skeleton con:
+-Busqueda
+-ZendDevTools
+-Logger global
+-ZFTools
+

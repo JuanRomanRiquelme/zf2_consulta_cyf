@@ -211,9 +211,26 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
         $factory = new \Doctrine\ORM\Mapping\ClassMetadataFactory();
         $factory->setEntityManager($em);
 
-        $this->setExpectedException('Doctrine\ORM\Mapping\MappingException',
-            "Entity 'Doctrine\Tests\ORM\Mapping\InvalidFetchOption' has a mapping with invalid fetch mode 'eager");
+        $this->setExpectedException('Doctrine\Common\Annotations\AnnotationException',
+            '[Enum Error] Attribute "fetch" of @Doctrine\ORM\Mapping\OneToMany declared on property Doctrine\Tests\ORM\Mapping\InvalidFetchOption::$collection accept only [LAZY, EAGER, EXTRA_LAZY], but got eager.');
         $cm = $factory->getMetadataFor('Doctrine\Tests\ORM\Mapping\InvalidFetchOption');
+    }
+
+    public function testAttributeOverridesMappingWithTrait()
+    {
+        if (!version_compare(PHP_VERSION, '5.4.0', '>=')) {
+            $this->markTestSkipped('This test is only for 5.4+.');
+        }
+
+        $factory       = $this->createClassMetadataFactory();
+
+        $metadataWithoutOverride = $factory->getMetadataFor('Doctrine\Tests\Models\DDC1872\DDC1872ExampleEntityWithoutOverride');
+        $metadataWithOverride = $factory->getMetadataFor('Doctrine\Tests\Models\DDC1872\DDC1872ExampleEntityWithOverride');
+
+        $this->assertEquals('trait_foo', $metadataWithoutOverride->fieldMappings['foo']['columnName']);
+        $this->assertEquals('foo_overridden', $metadataWithOverride->fieldMappings['foo']['columnName']);
+        $this->assertArrayHasKey('example_trait_bar_id', $metadataWithoutOverride->associationMappings['bar']['joinColumnFieldNames']);
+        $this->assertArrayHasKey('example_entity_overridden_bar_id', $metadataWithOverride->associationMappings['bar']['joinColumnFieldNames']);
     }
 }
 

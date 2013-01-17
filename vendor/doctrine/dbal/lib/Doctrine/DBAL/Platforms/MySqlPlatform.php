@@ -136,10 +136,6 @@ class MySqlPlatform extends AbstractPlatform
      *
      * Two approaches to listing the table indexes. The information_schema is
      * preferred, because it doesn't cause problems with SQL keywords such as "order" or "table".
-     *
-     * @param string $table
-     * @param string $currentDatabase
-     * @return string
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {

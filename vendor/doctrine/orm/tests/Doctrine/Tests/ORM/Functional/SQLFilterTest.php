@@ -58,11 +58,27 @@ class SQLFilterTest extends \Doctrine\Tests\OrmFunctionalTestCase
     public function testConfigureFilter()
     {
         $config = new \Doctrine\ORM\Configuration();
+        $validFilter = $this->getMockBuilder('\Doctrine\ORM\Query\Filter\SQLFilter')
+            ->disableOriginalConstructor()
+            ->getMock();
 
+        $config->addFilter("geolocation", $validFilter);
         $config->addFilter("locale", "\Doctrine\Tests\ORM\Functional\MyLocaleFilter");
 
-        $this->assertEquals("\Doctrine\Tests\ORM\Functional\MyLocaleFilter", $config->getFilterClassName("locale"));
-        $this->assertNull($config->getFilterClassName("foo"));
+        $this->assertEquals("\Doctrine\Tests\ORM\Functional\MyLocaleFilter", $config->getFilter("locale"));
+        $this->assertNull($config->getFilter("foo"));
+        $this->assertInstanceOf("\Doctrine\ORM\Query\Filter\SQLFilter", $config->getFilter("geolocation"));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testConfigureFilterFails()
+    {
+        $config = new \Doctrine\ORM\Configuration();
+        $invalidFilter = $this->getMock('\StdClass');
+
+        $config->addFilter("geolocation", $invalidFilter);
     }
 
     public function testEntityManagerEnableFilter()
@@ -156,6 +172,26 @@ class SQLFilterTest extends \Doctrine\Tests\OrmFunctionalTestCase
         $this->assertTrue($exceptionThrown);
     }
 
+    /**
+     * @group DDC-2203
+     */
+    public function testEntityManagerIsFilterEnabled()
+    {
+        $em = $this->_getEntityManager();
+        $this->configureFilters($em);
+
+        // Check for an enabled filter
+        $em->getFilters()->enable("locale");
+        $this->assertTrue($em->getFilters()->isEnabled("locale"));
+
+        // Check for a disabled filter
+        $em->getFilters()->disable("locale");
+        $this->assertFalse($em->getFilters()->isEnabled("locale"));
+        
+        // Check a non-existing filter
+        $this->assertFalse($em->getFilters()->isEnabled("foo_filter"));        
+    }
+    
     protected function configureFilters($em)
     {
         // Add filters to the configuration of the EM
