@@ -22,19 +22,6 @@ return array(
                     ),
                 ),
             ),
-            'search' => array(
-                'type' => 'Zend\Mvc\Router\Http\Segment',
-                'options' => array(
-                    'route'    => '/album/search',
-                    'constraints' => array(
-                        'lang' => '[a-z]{2}(-[A-Z]{2}){0,1}'
-                    ),
-                    'defaults' => array(
-                        'controller' => 'Album\Controller\Album',
-                        'action'     => 'search'
-                    ),
-                ),
-            ),
         ),
     ),
     'view_manager' => array(
