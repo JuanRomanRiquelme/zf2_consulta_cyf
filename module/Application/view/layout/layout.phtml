@@ -11,11 +11,13 @@
     <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
                     ->appendStylesheet($this->basePath() . '/css/bootstrap.min.css')
                     ->appendStylesheet($this->basePath() . '/css/style.css')
-                    ->appendStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css') ?>
+                    ->appendStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
+    ?>
 
     <!-- Scripts -->
     <?php echo $this->headScript()->appendFile($this->basePath() . '/js/html5.js', 'text/javascript', array('conditional' => 'lt IE 9',))
-                                  ->appendFile($this->basePath() . '/js/jquery-1.7.2.min.js') ?>
+                                  ->appendFile($this->basePath() . '/js/jquery-1.7.2.min.js')
+    ?>
 
   </head>
 
@@ -44,8 +46,10 @@
           </div>
           <div class="nav-collapse">
             <ul class="nav">
-              <li class="active"><a href="<?php echo $this->url('home') ?>"><?php echo $this->translate('Home') ?></a></li>
-              <li class="active"><a href="<?php echo $this->url('album', array('action' => 'search') ) ?>"><?php echo $this->translate('Buscar') ?></a></li>
+              <li class="active"><a href="<?php echo $this->url('home') ?>"><?php echo $this->translate('Home') ?></a>
+              </li>
+              <li class="active"><a class="fNiv" href="<?php echo $this->url('album', array('action' => 'search') ) ?>"><?php echo $this->translate('Buscar') ?></a>
+              </li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
@@ -60,7 +64,7 @@
 
       <footer>
       </footer>
-
+      
     </div> <!-- /container -->
 
   </body>
