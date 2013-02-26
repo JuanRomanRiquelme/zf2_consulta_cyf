@@ -1,4 +1,5 @@
 <?php
+
 return array(
     'router' => array(
         'routes' => array(
@@ -10,7 +11,7 @@ return array(
                         'lang' => '[a-z]{2}(-[A-Z]{2}){0,1}'
                     ),
                     'defaults' => array(
-                        'controller' => 'Album\Controller\Album',
+                        'controller' => 'Exped\Controller\Exped',
                         'action'     => 'index'
                     ),
                 ),

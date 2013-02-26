@@ -134,7 +134,8 @@ class QueryBuilder
      * This producer method is intended for convenient inline usage. Example:
      *
      * <code>
-     *     $qb = $em->createQueryBuilder()
+     *     $qb = $em->createQueryBuilder();
+     *     $qb
      *         ->select('u')
      *         ->from('User', 'u')
      *         ->where($qb->expr()->eq('u.id', 1));
@@ -197,8 +198,6 @@ class QueryBuilder
         if ($this->_dql !== null && $this->_state === self::STATE_CLEAN) {
             return $this->_dql;
         }
-
-        $dql = '';
 
         switch ($this->_type) {
             case self::DELETE:

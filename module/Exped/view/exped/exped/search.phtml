@@ -1,0 +1,55 @@
+<?php
+
+$title = 'Expedientes';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->escapeHtml($title); ?></h1>
+
+<?php
+$form = $this->form;
+$form->setAttribute('action', $this->url('exped', array('action' => 'search')));
+$form->prepare();
+
+echo $this->form()->openTag($form);
+echo $this->formCollection($form);
+echo $this->form()->closeTag();
+
+?>
+
+<table class="table">
+<tr>
+    <th>Numero</th>
+    <th>Anio</th>
+    <th>Codigo</th>
+    <th>Num. Exp. UACF</th>
+    <th>Juzgado</th>
+    <th>Fiscalia</th>
+    <th>Defensoria</th>
+    <th>&nbsp;</th>
+</tr>
+<?php if(!empty($expeds)) :?>
+    <?php foreach ($expeds as $exped) : ?>
+        <tr>
+            <td><?php echo $this->escapeHtml($exped->num);?></td>
+            <td><?php echo $this->escapeHtml($exped->anio);?></td>
+            <td><?php echo $this->escapeHtml($exped->codigo);?></td>
+            <td><?php echo $this->escapeHtml($exped->num_exp_adm);?></td>
+            <td>
+            <?php foreach ($exped->getJuzgados() as $juez) : ?>
+                <?php echo $this->escapeHtml($juez->nombre."  ");?>
+            <?php endforeach; ?>
+            </td>
+            <td>
+            <?php foreach ($exped->getFiscalias() as $fisc) : ?>
+                <?php echo $this->escapeHtml($fisc->nombre."  ");?>
+            <?php endforeach; ?>
+            </td>
+            <td>
+            <?php foreach ($exped->getDefensorias() as $def) : ?>
+                <?php echo $this->escapeHtml($def->nombre."  ");?>
+            <?php endforeach; ?>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+<?php endif; ?>
+</table>

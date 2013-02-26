@@ -119,6 +119,14 @@ class SelectSqlGenerationTest extends \Doctrine\Tests\OrmTestCase
         );
     }
 
+    public function testNotExistsExpression()
+    {
+        $this->assertSqlGeneration(
+            'SELECT u FROM Doctrine\Tests\Models\CMS\CmsUser u WHERE NOT EXISTS (SELECT p.phonenumber FROM Doctrine\Tests\Models\CMS\CmsPhonenumber p WHERE p.phonenumber = 1234)',
+            'SELECT c0_.id AS id0, c0_.status AS status1, c0_.username AS username2, c0_.name AS name3 FROM cms_users c0_ WHERE NOT EXISTS (SELECT c1_.phonenumber FROM cms_phonenumbers c1_ WHERE c1_.phonenumber = 1234)'
+        );
+    }
+
     public function testSupportsSelectForMultipleColumnsOfASingleComponent()
     {
         $this->assertSqlGeneration(
@@ -1654,6 +1662,47 @@ class SelectSqlGenerationTest extends \Doctrine\Tests\OrmTestCase
 
     }
 
+    /**
+     * @group DDC-2234
+     */
+    public function testWhereFunctionIsNullComparisonExpression()
+    {
+        $this->assertSqlGeneration(
+            "SELECT u FROM Doctrine\Tests\Models\CMS\CmsUser u WHERE IDENTITY(u.email) IS NULL",
+            "SELECT c0_.id AS id0, c0_.status AS status1, c0_.username AS username2, c0_.name AS name3 FROM cms_users c0_ WHERE c0_.email_id IS NULL"
+        );
+
+        $this->assertSqlGeneration(
+            "SELECT u FROM Doctrine\Tests\Models\CMS\CmsUser u WHERE NULLIF(u.name, 'FabioBatSilva') IS NULL AND IDENTITY(u.email) IS NOT NULL",
+            "SELECT c0_.id AS id0, c0_.status AS status1, c0_.username AS username2, c0_.name AS name3 FROM cms_users c0_ WHERE NULLIF(c0_.name, 'FabioBatSilva') IS NULL AND c0_.email_id IS NOT NULL"
+        );
+
+        $this->assertSqlGeneration(
+            "SELECT u FROM Doctrine\Tests\Models\CMS\CmsUser u WHERE IDENTITY(u.email) IS NOT NULL",
+            "SELECT c0_.id AS id0, c0_.status AS status1, c0_.username AS username2, c0_.name AS name3 FROM cms_users c0_ WHERE c0_.email_id IS NOT NULL"
+        );
+
+        $this->assertSqlGeneration(
+            "SELECT u FROM Doctrine\Tests\Models\CMS\CmsUser u WHERE NULLIF(u.name, 'FabioBatSilva') IS NOT NULL",
+            "SELECT c0_.id AS id0, c0_.status AS status1, c0_.username AS username2, c0_.name AS name3 FROM cms_users c0_ WHERE NULLIF(c0_.name, 'FabioBatSilva') IS NOT NULL"
+        );
+
+        $this->assertSqlGeneration(
+            "SELECT u FROM Doctrine\Tests\Models\CMS\CmsUser u WHERE COALESCE(u.name, u.id) IS NOT NULL",
+            "SELECT c0_.id AS id0, c0_.status AS status1, c0_.username AS username2, c0_.name AS name3 FROM cms_users c0_ WHERE COALESCE(c0_.name, c0_.id) IS NOT NULL"
+        );
+
+        $this->assertSqlGeneration(
+            "SELECT u FROM Doctrine\Tests\Models\CMS\CmsUser u WHERE COALESCE(u.id, IDENTITY(u.email)) IS NOT NULL",
+            "SELECT c0_.id AS id0, c0_.status AS status1, c0_.username AS username2, c0_.name AS name3 FROM cms_users c0_ WHERE COALESCE(c0_.id, c0_.email_id) IS NOT NULL"
+        );
+
+        $this->assertSqlGeneration(
+            "SELECT u FROM Doctrine\Tests\Models\CMS\CmsUser u WHERE COALESCE(IDENTITY(u.email), NULLIF(u.name, 'FabioBatSilva')) IS NOT NULL",
+            "SELECT c0_.id AS id0, c0_.status AS status1, c0_.username AS username2, c0_.name AS name3 FROM cms_users c0_ WHERE COALESCE(c0_.email_id, NULLIF(c0_.name, 'FabioBatSilva')) IS NOT NULL"
+        );
+    }
+
     public function testCustomTypeValueSql()
     {
         if (DBALType::hasType('negative_to_positive')) {
@@ -1815,6 +1864,27 @@ class SelectSqlGenerationTest extends \Doctrine\Tests\OrmTestCase
         $this->assertSqlGeneration(
             'SELECT SUM(CASE WHEN e.salary <= :value THEN (e.salary - :value) WHEN e.salary >= :value THEN (:value - e.salary) ELSE (e.salary + :value) END) FROM Doctrine\Tests\Models\Company\CompanyEmployee e',
             'SELECT SUM(CASE WHEN c0_.salary <= ? THEN c0_.salary - ? WHEN c0_.salary >= ? THEN ? - c0_.salary ELSE c0_.salary + ? END) AS sclr0 FROM company_employees c0_ INNER JOIN company_persons c1_ ON c0_.id = c1_.id'
+        );
+    }
+
+    /**
+    * @group DDC-2268
+    */
+    public function testCaseThenFunction()
+    {
+        $this->assertSqlGeneration(
+            'SELECT CASE WHEN LENGTH(u.name) <> 0 THEN CONCAT(u.id, u.name) ELSE u.id END AS name  FROM Doctrine\Tests\Models\CMS\CmsUser u',
+            'SELECT CASE WHEN LENGTH(c0_.name) <> 0 THEN c0_.id || c0_.name ELSE c0_.id END AS sclr0 FROM cms_users c0_'
+        );
+
+        $this->assertSqlGeneration(
+            'SELECT CASE WHEN LENGTH(u.name) <> LENGTH(TRIM(u.name)) THEN TRIM(u.name) ELSE u.name END AS name  FROM Doctrine\Tests\Models\CMS\CmsUser u',
+            'SELECT CASE WHEN LENGTH(c0_.name) <> LENGTH(TRIM(c0_.name)) THEN TRIM(c0_.name) ELSE c0_.name END AS sclr0 FROM cms_users c0_'
+        );
+
+        $this->assertSqlGeneration(
+            'SELECT CASE WHEN LENGTH(u.name) > :value THEN SUBSTRING(u.name, 0, :value) ELSE TRIM(u.name) END AS name  FROM Doctrine\Tests\Models\CMS\CmsUser u',
+            'SELECT CASE WHEN LENGTH(c0_.name) > ? THEN SUBSTRING(c0_.name FROM 0 FOR ?) ELSE TRIM(c0_.name) END AS sclr0 FROM cms_users c0_'
         );
     }
 }

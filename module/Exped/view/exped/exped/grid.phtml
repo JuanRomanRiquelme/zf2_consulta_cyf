@@ -1,0 +1,43 @@
+<table id="expedList"></table>
+<div id="expedPager"></div>
+<div id="expedFilter" style="margin-left:30%;display:none">Search Invoices</div>
+
+<script type="text/javascript">
+    
+    var expedGrid = jQuery("#expedList").jqGrid({
+        url:'searchGrid',
+        datatype: "json",
+        colNames:['Id','Num', 'Anio', 'Codigo', 'Num Exp Adm','Juzgado','Fiscalia','Defensoria'],
+        colModel:[
+                {name:'id',index:'id', width:'5%'},
+                {name:'num',index:'num', width:'10%'},
+                {name:'anio',index:'anio', width:'10%', stype:'select', editoptions:{value:":;2006:2006;2007:2007;2008:2008;2009:2009;2010:2010;2011:2011;2012:2012;2013:2013"}},
+                {name:'codigo',index:'codigo', width:'25%'},
+                {name:'num_exp_adm',index:'num_exp_adm', width:'20%', align:"right"},
+                {name:'juzgado', width:'15%', align:"right", search: false, sortable:false},		
+                {name:'fiscalia', width:'15%',align:"right", search: false, sortable:false},		
+                {name:'defensoria', width:'10%', search: false, sortable:false}		
+        ],
+        rowNum:10,
+   	rowList:[10,20,30],
+   	pager: '#expedPager',
+   	sortname: 'id',
+        viewrecords: true,
+        sortorder: "desc",
+        gridview : true,
+	autowidth: true,
+        //width : 800,
+        caption:"B&uacute;squeda de Expedientes"
+    });
+    
+    jQuery("#expedList").jqGrid('navGrid','#expedPager',{edit:false,add:false,del:false,search:false,refresh:false});
+    
+    jQuery("#expedList").jqGrid('navButtonAdd',"#expedPager",{caption:"Limpiar B&uacute;squeda",title:"Limpiar Búsqueda",buttonicon :'ui-icon-refresh',
+            onClickButton:function(){
+                    expedGrid[0].clearToolbar()
+            } 
+    });
+    
+    jQuery("#expedList").jqGrid('filterToolbar',{searchOnEnter:false});
+    
+</script>

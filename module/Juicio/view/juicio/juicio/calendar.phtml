@@ -1,0 +1,153 @@
+<script type="text/javascript" src="../js/fullcalendar-1.5.4/fullcalendar/fullcalendar.js"></script>
+<LINK REL='stylesheet' TYPE='text/css' HREF='../js/fullcalendar-1.5.4/fullcalendar/fullcalendar.css'>
+<LINK REL='stylesheet' TYPE='text/css' HREF='../js/fullcalendar-1.5.4/fullcalendar/custom.css'>
+<!--LINK REL='stylesheet' TYPE='text/css' HREF='../js/jqUI1.10/css/redmond/jquery-ui-1.10.1.custom.min.css'-->
+<LINK REL='stylesheet' TYPE='text/css' HREF='../js/jqUI1.10/css/cupertino/jquery-ui-1.10.1.custom.min.css'>
+
+
+<?php
+$form = $this->form;
+$form->setAttribute('action', $this->url('juicio', array('action' => 'calendar')));
+$form->prepare();
+
+echo $this->form()->openTag($form);
+echo $this->formCollection($form);
+echo $this->form()->closeTag();
+
+?>
+
+<div id='full-calendar'></div>
+<div id='loading_gif' class='loading_modal'>
+        <img src='../images/cargando.gif' />
+</div>
+
+<script type="text/javascript">
+    
+    $( document ).ready( function() {
+			
+        $('#full-calendar').fullCalendar({
+                
+                editable: true,
+                disableDragging: true,
+                disableResizing: true,
+                theme: true,
+                aspectRatio: 1.6,
+                weekends: false,
+                //defaultView: 'agendaWeek',
+                
+                
+                columnFormat: {
+                        month: 'ddd',    // Mon
+                        week: 'ddd d/M', // Mon 9/7
+                        day: 'dddd d/M'  // Monday 9/7
+                },
+                
+                titleFormat: {
+                        month: 'MMMM yyyy',                             // September 2009
+                        week: "d[ yyyy]{ '&#97;&#108;' d '&#100;&#101;' MMMM '&#100;&#101;' yyyy}", // Sep 7 - 13 2009
+                        day: "dddd d '&#100;&#101;' MMMM '&#100;&#101;' yyyy"                  // Tuesday, Sep 8, 2009
+                },
+                
+                timeFormat: {
+                        agenda: 'H:mm{ - H:mm}',
+                        '': 'H(:mm)'           
+                },
+                
+                header: {
+                        left: 'prev,next, today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay'
+                },
+                
+                monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio','Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+                monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                dayNames: ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'],
+                dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+                allDayText: 'Dia completo',
+                buttonText: {
+                        today:    'hoy',
+                        month:    'mes',
+                        week:     'semana',
+                        day:      'dia'
+                },
+                
+                dayClick: function(date, allDay, jsEvent, view) {
+
+                        if (allDay) {
+                                var dia = $.fullCalendar.formatDate( date, 'yyyyMMdd' ); 
+                        }
+                },
+                
+                loading: function(bool) {                            
+                        if (bool) {                     
+                                $('#loading_gif').css("display", "block" );
+                                $('body').append('<div id="fade"></div>'); //Add the fade layer to bottom of the body tag.
+                                $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer - .css({'filter' : 'alpha(opacity=80)'}) is used to fix the IE Bug on fading transparencies 
+                        } else {               
+                                $('#loading_gif').css("display", "none" );
+                                $('#fade').remove(); 
+                        }
+                }
+                
+        });
+
+        var events = {
+            url: 'calendarEvents',
+            type: 'POST',
+            data: {
+              fecha: $( '#fecha' ).val(),
+              tCausaGrupo: $('#tCausaGrupo').val(),
+              edificio: $('#edificio').val()
+            }
+        }
+        $('#full-calendar').fullCalendar('addEventSource',events );        
+        
+        // Si hay solo busqueda por fecha, gotoDate
+        // Si hay busqueda por tCausa, filtra.
+        $('#Juicio').submit(function()
+        {
+            // Tengo que recargar el eventSource. Seguro que se pueden ahorrar 3 lineas, pero bue..
+            var events = {
+                url: 'calendarEvents',
+                type: 'POST',
+                data: {
+                  fecha: $( '#fecha' ).val(),
+                  tCausaGrupo: $('#tCausaGrupo').val(),
+                  edificio: $('#edificio').val()
+                }
+            }
+            
+            $('#full-calendar').fullCalendar( 'removeEventSource', events );
+            $('#full-calendar').fullCalendar( 'addEventSource', events );
+            $('#full-calendar').fullCalendar( 'refetchEvents' );
+        
+            ret = true;
+            if ($( '#fecha' ).val()){
+                var fec = new Date($( '#fecha' ).val());
+                $('#full-calendar').fullCalendar('gotoDate', fec.getFullYear(), fec.getMonth(),fec.getUTCDate());
+                $('#full-calendar').fullCalendar( 'changeView', 'agendaDay' );
+                ret = false;
+            }
+            if (( $('#tCausaGrupo').val()) || ( $('#edificio').val())){
+                $('#full-calendar').fullCalendar( 'removeEventSource', events );
+                $('#full-calendar').fullCalendar( 'addEventSource', events );
+                $('#full-calendar').fullCalendar( 'refetchEvents' );
+                ret = false;
+            }
+            
+            return ret;
+        });
+        
+    } );
+    
+    
+
+</script>
+
+<style type='text/css'>
+    #full-calendar {
+            text-align: left;
+            /*width: 95%;*/
+            margin: 0 auto;
+    }
+</style>

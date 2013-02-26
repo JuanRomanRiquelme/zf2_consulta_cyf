@@ -5,9 +5,6 @@ namespace Album\Model;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-//use Zend\Log\Logger;
-//use Zend\Log\Writer\Stream;
-use Utils\LogUtil;
 
 class AlbumTable implements ServiceLocatorAwareInterface
 {
@@ -47,7 +44,7 @@ class AlbumTable implements ServiceLocatorAwareInterface
     public function searchAlbum($data)
     {
         // Esta en global.php Es LA joda de ZF2, el servicelocator
-        //$this->serviceLocator->get('Zend\Log')->info('Something...');
+        $this->serviceLocator->get('Zend\Log')->info('Something...');
         
         // Borro los vacios y el "submit" para que funcione la busqueda        
         foreach ($data as $k=>$v){

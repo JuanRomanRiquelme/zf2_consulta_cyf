@@ -3,59 +3,42 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <?php echo $this->headTitle('ZF2 '. $this->translate('Skeleton Application'))->setSeparator(' - ')->setAutoEscape(false) ?>
+    <!--?php echo $this->headTitle('ZF2 '. $this->translate('Skeleton Application'))->setSeparator(' - ')->setAutoEscape(false) ?-->
 
     <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
 
     <!-- Le styles -->
     <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
-                    ->appendStylesheet($this->basePath() . '/css/bootstrap.min.css')
-                    ->appendStylesheet($this->basePath() . '/css/style.css')
-                    ->appendStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
+                    //->appendStylesheet($this->basePath() . '/css/bootstrap.min.css')
+                    //->appendStylesheet($this->basePath() . '/css/style.css')
+                    //->appendStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
+                    //->appendStylesheet($this->basePath() . '/js/jqUI1.10/css/smoothness/jquery-ui-1.10.0.custom.min.css')
+                    //->appendStylesheet($this->basePath() . '/js/jqUI1.10/css/redmond/jquery-ui-1.10.1.custom.min.css')
+                    ->appendStylesheet($this->basePath() . '/css/custom.style.css')
+                    ->appendStylesheet($this->basePath() . '/js/jqUI1.10/css/cupertino/jquery-ui-1.10.1.custom.min.css')
+                    ->appendStylesheet($this->basePath() . '/js/jqGrid4.4/css/ui.jqgrid.css')
     ?>
 
     <!-- Scripts -->
     <?php echo $this->headScript()->appendFile($this->basePath() . '/js/html5.js', 'text/javascript', array('conditional' => 'lt IE 9',))
-                                  ->appendFile($this->basePath() . '/js/jquery-1.7.2.min.js')
+                                  ->appendFile($this->basePath() . '/js/jquery-1.9.0.min.js')
+                                  ->appendFile($this->basePath() . '/js/menu.js')
+                                  ->appendFile($this->basePath() . '/js/jqUI1.10/js/jquery-ui-1.10.0.custom.min.js')
+                                  ->appendFile($this->basePath() . '/js/jqGrid4.4/js/jquery.jqGrid.min.js')
+                                  ->appendFile($this->basePath() . '/js/jqGrid4.4/js/i18n/grid.locale-es.js')
     ?>
 
   </head>
 
   <body>
 
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="<?php echo $this->url('home') ?>"><?php echo $this->translate('Skeleton Application') ?></a>
-
-          <div class="dropdown" style="float:right">
-              <?php echo $this->partial('layout/languages.phtml', array(
-                    'lang' => array(
-                        'English'  => 'en-US',
-                        'Français' => 'fr-FR',
-                        'Deutsch'  => 'de-DE',
-                    ),
-                    'selected' => $this->lang,
-              )); ?>
-          </div>
-          <div class="nav-collapse">
-            <ul class="nav">
-              <li class="active"><a href="<?php echo $this->url('home') ?>"><?php echo $this->translate('Home') ?></a>
+            <ul id="menu" class="ui-menu ui-widget ui-widget-content ui-corner-all" role="menu">
+              <li class="ui-menu-item" role="presentation"><a class="ui-corner-all" role="menuitem" href="<?php echo $this->url('home') ?>"><?php echo $this->translate('Causas PCyF') ?></a>
               </li>
-              <li class="active"><a class="fNiv" href="<?php echo $this->url('album', array('action' => 'search') ) ?>"><?php echo $this->translate('Buscar') ?></a>
+              <li class="ui-menu-item" role="presentation"><a class="ui-corner-all" role="menuitem" href="<?php echo $this->url('juicio', array('action' => 'calendar') ) ?>"><?php echo $this->translate('Audiencias Públicas') ?></a>
               </li>
             </ul>
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
-
+    
     <div class="container">
 
       <?php echo $this->content; ?>
